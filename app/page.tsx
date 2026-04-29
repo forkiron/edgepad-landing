@@ -1,11 +1,38 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import edgepadLogo from "../public/edgepad.png";
 
 export default function Home() {
   const tpRef = useRef<HTMLDivElement>(null);
   const dlRef = useRef<HTMLDivElement>(null);
+  const sunRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const fingerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  // measured trackpad dimensions (post-rotation projected) — defaults match desktop
+  const [dims, setDims] = useState({ w: 900, h: 376 });
+
+  // measure trackpad before paint so particles target the right shape
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (!tpRef.current) return;
+      const r = tpRef.current.getBoundingClientRect();
+      // r.width = trackpad-wrap width (rotation around X preserves X)
+      // we want UNROTATED dimensions because .pixel-cloud applies the same rotateX(48deg).
+      // Trackpad aspect-ratio is 1.6:1, so unrotated height = width / 1.6.
+      const w = r.width;
+      const h = w / 1.6;
+      setDims({
+        w: w * 0.96,
+        h: h * 0.96,
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
   // gentle parallax tilt on the trackpad
   useEffect(() => {
@@ -23,6 +50,88 @@ export default function Home() {
       raf = requestAnimationFrame(() => {
         if (tpRef.current) {
           tpRef.current.style.transform = `rotateX(${tx}deg) rotateZ(${tz}deg)`;
+        }
+        raf = null;
+      });
+    }
+
+    document.addEventListener("mousemove", onMove);
+    return () => {
+      document.removeEventListener("mousemove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // left-edge swipe → sun + brightness
+  useEffect(() => {
+    const brightness = { v: 0 };
+    let lastY: number | null = null;
+    let inEdge = false;
+
+    function apply() {
+      const s = String(brightness.v);
+      sunRef.current?.style.setProperty("--brightness", s);
+      overlayRef.current?.style.setProperty("--brightness", s);
+    }
+
+    function onMove(e: MouseEvent) {
+      if (!tpRef.current) return;
+      const r = tpRef.current.getBoundingClientRect();
+      const edgeW = r.width * 0.1;
+      const onEdge =
+        e.clientX >= r.left &&
+        e.clientX <= r.left + edgeW &&
+        e.clientY >= r.top &&
+        e.clientY <= r.bottom;
+
+      if (onEdge) {
+        if (inEdge && lastY !== null) {
+          const dy = e.clientY - lastY;
+          // up swipe (dy < 0) brightens; down swipe dims
+          brightness.v = Math.max(0, Math.min(1, brightness.v - dy * 0.005));
+          apply();
+        }
+        inEdge = true;
+        lastY = e.clientY;
+      } else {
+        inEdge = false;
+        lastY = null;
+      }
+    }
+
+    document.addEventListener("mousemove", onMove);
+    return () => document.removeEventListener("mousemove", onMove);
+  }, []);
+
+  // finger cursor — follows mouse when over trackpad, hidden otherwise
+  useEffect(() => {
+    let raf: number | null = null;
+    let lx = 0;
+    let ly = 0;
+
+    function onMove(e: MouseEvent) {
+      lx = e.clientX;
+      ly = e.clientY;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        if (!tpRef.current || !fingerRef.current) {
+          raf = null;
+          return;
+        }
+        const r = tpRef.current.getBoundingClientRect();
+        const onTp =
+          lx >= r.left &&
+          lx <= r.right &&
+          ly >= r.top &&
+          ly <= r.bottom;
+
+        const f = fingerRef.current;
+        if (onTp) {
+          f.style.opacity = "1";
+          // center aura ball on the cursor
+          f.style.transform = `translate(${lx}px, ${ly}px) translate(-50%, -50%)`;
+        } else {
+          f.style.opacity = "0";
         }
         raf = null;
       });
@@ -55,19 +164,82 @@ export default function Home() {
 
   return (
     <main>
-      {/* top-left logo */}
-      <a href="#" className="logo" aria-label="EdgePad">
-        <span className="logo-mark" />
-        <span>EdgePad</span>
-      </a>
+      {/* page-wide warm shine — opacity tied to brightness */}
+      <div ref={overlayRef} className="shine-overlay" aria-hidden="true" />
 
-      {/* giant background wordmark */}
-      <div className="bg-wordmark" aria-hidden="true">
-        EdgePad
+      {/* hyperrealistic sun — drops from top with brightness */}
+      <div ref={sunRef} className="sun" aria-hidden="true">
+        <span className="sun-rays" />
+        <span className="sun-disc" />
       </div>
+
+      {/* aura ball cursor — appears only when hovering the trackpad */}
+      <div ref={fingerRef} className="aura-cursor" aria-hidden="true">
+        <span className="aura-halo" />
+        <span className="aura-core" />
+      </div>
+
+      {/* top-left logo */}
+      <a href="#" className="logo" aria-label="edgepad">
+        <Image src={edgepadLogo} alt="" className="logo-img" priority />
+        <span className="logo-text">edgepad</span>
+      </a>
 
       {/* trackpad */}
       <div className="stage">
+        {/* pixel cloud: 3D sphere → flat trackpad-shaped grid → fade */}
+        <div className="pixel-cloud" aria-hidden="true">
+          {(() => {
+            const N = 420;
+            const sphereR = 105;
+            const gridW = dims.w;
+            const gridH = dims.h;
+
+            // deterministic pseudo-random based on index — SSR-safe
+            const rand = (seed: number) => {
+              const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+              return x - Math.floor(x);
+            };
+
+            const items = [];
+            for (let i = 0; i < N; i++) {
+              // random point uniformly inside a sphere (filled blob)
+              const u = rand(i * 3 + 1);
+              const v = rand(i * 3 + 2);
+              const w = rand(i * 3 + 3);
+              const theta = u * Math.PI * 2;
+              const phi = Math.acos(2 * v - 1);
+              const radius = Math.cbrt(w) * sphereR;
+              const cx = Math.round(radius * Math.sin(phi) * Math.cos(theta));
+              const cy = Math.round(radius * Math.sin(phi) * Math.sin(theta));
+              const cz = Math.round(radius * Math.cos(phi));
+
+              // random point inside trackpad rectangle
+              const gx = Math.round((rand(i * 5 + 11) - 0.5) * gridW);
+              const gy = Math.round((rand(i * 5 + 13) - 0.5) * gridH);
+
+              const delay = +(rand(i * 7 + 17) * 0.3).toFixed(3);
+              items.push({ i, cx, cy, cz, gx, gy, delay });
+            }
+            return items.map(({ i, cx, cy, cz, gx, gy, delay }) => (
+              <span
+                key={i}
+                className="pixel"
+                style={
+                  {
+                    "--cx": `${cx}px`,
+                    "--cy": `${cy}px`,
+                    "--cz": `${cz}px`,
+                    "--gx": `${gx}px`,
+                    "--gy": `${gy}px`,
+                    "--d": `${delay}s`,
+                  } as React.CSSProperties
+                }
+              />
+            ));
+          })()}
+        </div>
+
         <div className="trackpad-wrap" ref={tpRef}>
           <div className="trackpad">
             <div className="edge-frame">
@@ -82,12 +254,13 @@ export default function Home() {
             </div>
           </div>
         </div>
+
       </div>
 
       {/* tagline + drop-up download */}
       <div className="hero-bottom">
         <h1 className="tagline">
-          Edge <em>More.</em>
+          Use Your <em>Edge.</em>
         </h1>
 
         <div

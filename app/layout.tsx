@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Instrument_Serif } from "next/font/google";
+import { Geist, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const geist = Geist({
@@ -9,11 +10,17 @@ const geist = Geist({
   display: "swap",
 });
 
-const instrumentSerif = Instrument_Serif({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-instrument",
+  weight: ["400", "500", "600"],
+  style: ["italic"],
+  variable: "--font-italic",
+  display: "swap",
+});
+
+const halo = localFont({
+  src: "../public/fonts/HaloHandletter.otf",
+  variable: "--font-script",
   display: "swap",
 });
 
@@ -29,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geist.variable} ${instrumentSerif.variable}`}>
+    <html lang="en" className={`${geist.variable} ${playfair.variable} ${halo.variable}`}>
       <body>{children}</body>
     </html>
   );
