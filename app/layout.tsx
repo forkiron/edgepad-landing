@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const geist = Geist({
@@ -37,7 +38,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geist.variable} ${playfair.variable} ${halo.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
