@@ -7,8 +7,6 @@ import edgepadLogo from "../public/edgepad.png";
 export default function Home() {
   const tpRef = useRef<HTMLDivElement>(null);
   const dlRef = useRef<HTMLDivElement>(null);
-  const sunRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
   const fingerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   // measured trackpad dimensions (post-rotation projected) — defaults match desktop
@@ -60,47 +58,6 @@ export default function Home() {
       document.removeEventListener("mousemove", onMove);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
-
-  // left-edge swipe → sun + brightness
-  useEffect(() => {
-    const brightness = { v: 0 };
-    let lastY: number | null = null;
-    let inEdge = false;
-
-    function apply() {
-      const s = String(brightness.v);
-      sunRef.current?.style.setProperty("--brightness", s);
-      overlayRef.current?.style.setProperty("--brightness", s);
-    }
-
-    function onMove(e: MouseEvent) {
-      if (!tpRef.current) return;
-      const r = tpRef.current.getBoundingClientRect();
-      const edgeW = r.width * 0.1;
-      const onEdge =
-        e.clientX >= r.left &&
-        e.clientX <= r.left + edgeW &&
-        e.clientY >= r.top &&
-        e.clientY <= r.bottom;
-
-      if (onEdge) {
-        if (inEdge && lastY !== null) {
-          const dy = e.clientY - lastY;
-          // up swipe (dy < 0) brightens; down swipe dims
-          brightness.v = Math.max(0, Math.min(1, brightness.v - dy * 0.005));
-          apply();
-        }
-        inEdge = true;
-        lastY = e.clientY;
-      } else {
-        inEdge = false;
-        lastY = null;
-      }
-    }
-
-    document.addEventListener("mousemove", onMove);
-    return () => document.removeEventListener("mousemove", onMove);
   }, []);
 
   // finger cursor — follows mouse when over trackpad, hidden otherwise
@@ -164,15 +121,6 @@ export default function Home() {
 
   return (
     <main>
-      {/* page-wide warm shine — opacity tied to brightness */}
-      <div ref={overlayRef} className="shine-overlay" aria-hidden="true" />
-
-      {/* hyperrealistic sun — drops from top with brightness */}
-      <div ref={sunRef} className="sun" aria-hidden="true">
-        <span className="sun-rays" />
-        <span className="sun-disc" />
-      </div>
-
       {/* aura ball cursor — appears only when hovering the trackpad */}
       <div ref={fingerRef} className="aura-cursor" aria-hidden="true">
         <span className="aura-halo" />
@@ -247,6 +195,7 @@ export default function Home() {
               <div className="edge right" />
               <div className="edge bot" />
               <div className="edge left" />
+              <span className="neon-lap-line" aria-hidden="true" />
               <div className="corner tl" />
               <div className="corner tr" />
               <div className="corner br" />

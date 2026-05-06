@@ -129,102 +129,6 @@ main {
   cursor: none;
 }
 
-/* ─────────── sun + shine overlay (left-edge swipe controlled) ─────────── */
-
-.shine-overlay {
-  --brightness: 0;
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 8;
-  opacity: var(--brightness);
-  background:
-    radial-gradient(ellipse 75% 65% at 50% -8%,
-      rgba(255, 220, 130, 0.42) 0%,
-      rgba(255, 220, 130, 0.18) 30%,
-      rgba(255, 220, 130, 0.05) 55%,
-      rgba(255, 220, 130, 0) 75%);
-  transition: opacity 0.18s ease-out;
-}
-
-.sun {
-  --brightness: 0;
-  position: fixed;
-  left: 50%;
-  top: 0;
-  width: clamp(220px, 24vw, 340px);
-  height: clamp(220px, 24vw, 340px);
-  pointer-events: none;
-  z-index: 9;
-  /* hidden above viewport at 0; descends with brightness */
-  transform: translate(-50%, calc(-118% + var(--brightness) * 95%));
-  transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
-  opacity: var(--brightness);
-  filter: brightness(calc(0.85 + var(--brightness) * 0.35));
-}
-
-.sun-disc {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 33% 28%,
-      rgba(255, 255, 250, 1) 0%,
-      rgba(255, 247, 216, 1) 16%,
-      rgba(255, 220, 120, 1) 45%,
-      rgba(225, 150, 55, 1) 82%,
-      rgba(180, 105, 30, 1) 100%);
-  box-shadow:
-    0 0 calc(40px + 80px * var(--brightness)) rgba(255, 213, 109, calc(0.55 + 0.4 * var(--brightness))),
-    0 0 calc(100px + 200px * var(--brightness)) rgba(255, 200, 80, calc(0.35 * var(--brightness))),
-    0 0 calc(200px + 400px * var(--brightness)) rgba(255, 200, 100, calc(0.25 * var(--brightness))),
-    inset 0 -18px 30px rgba(0, 0, 0, 0.18),
-    inset 0 12px 24px rgba(255, 255, 255, 0.5);
-  transition: box-shadow 0.22s ease-out;
-}
-
-.sun-rays {
-  position: absolute;
-  inset: -40%;
-  border-radius: 50%;
-  background:
-    conic-gradient(
-      from 0deg,
-      rgba(255, 220, 130, 0) 0deg,
-      rgba(255, 220, 130, 0.18) 8deg,
-      rgba(255, 220, 130, 0) 16deg,
-      rgba(255, 220, 130, 0) 32deg,
-      rgba(255, 220, 130, 0.14) 40deg,
-      rgba(255, 220, 130, 0) 48deg,
-      rgba(255, 220, 130, 0) 64deg,
-      rgba(255, 220, 130, 0.16) 72deg,
-      rgba(255, 220, 130, 0) 80deg,
-      rgba(255, 220, 130, 0) 110deg,
-      rgba(255, 220, 130, 0.12) 118deg,
-      rgba(255, 220, 130, 0) 126deg,
-      rgba(255, 220, 130, 0) 160deg,
-      rgba(255, 220, 130, 0.16) 168deg,
-      rgba(255, 220, 130, 0) 176deg,
-      rgba(255, 220, 130, 0) 220deg,
-      rgba(255, 220, 130, 0.14) 228deg,
-      rgba(255, 220, 130, 0) 236deg,
-      rgba(255, 220, 130, 0) 280deg,
-      rgba(255, 220, 130, 0.16) 288deg,
-      rgba(255, 220, 130, 0) 296deg,
-      rgba(255, 220, 130, 0) 340deg,
-      rgba(255, 220, 130, 0.18) 348deg,
-      rgba(255, 220, 130, 0) 360deg
-    );
-  filter: blur(10px);
-  opacity: calc(var(--brightness) * 0.85);
-  animation: rayspin 60s linear infinite;
-  transition: opacity 0.22s ease-out;
-}
-
-@keyframes rayspin {
-  to { transform: rotate(360deg); }
-}
-
 /* ─────────── logo (top-left) ─────────── */
 
 .logo {
@@ -376,6 +280,7 @@ main {
 
 .edge {
   position: absolute;
+  overflow: visible;
   background: linear-gradient(90deg, transparent, var(--glow-core) 12%, var(--glow-mid) 50%, var(--glow-core) 88%, transparent);
   box-shadow:
     0 0 8px 0 rgba(255,255,255,0.95),
@@ -406,6 +311,29 @@ main {
 .edge.bot   { animation: igniteH 0.9s 1.85s var(--ease-out-strong) forwards, pulse 5s 3.15s ease-in-out infinite; }
 .edge.left  { animation: igniteV 0.9s 1.95s var(--ease-out-strong) forwards, pulse 5s 3.30s ease-in-out infinite; }
 
+.neon-lap-line {
+  --neon-delay: 2.05s;
+  --neon-duration: 7.6s;
+  position: absolute;
+  left: 18px;
+  top: 3px;
+  z-index: 6;
+  width: clamp(42px, 6.6vw, 72px);
+  height: 3px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(118, 205, 255, 0.48);
+  box-shadow:
+    0 0 6px rgba(118, 205, 255, 0.42),
+    0 0 14px rgba(72, 178, 255, 0.24);
+  filter:
+    saturate(1.08)
+    blur(0.1px);
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: neonLapClean var(--neon-duration) var(--neon-delay) linear forwards;
+}
+
 @keyframes igniteH {
   0%   { opacity: 0; transform: scaleX(0.05); transform-origin: 50% 50%; filter: blur(6px); }
   40%  { opacity: 1; }
@@ -419,6 +347,110 @@ main {
 @keyframes pulse {
   0%, 100% { filter: brightness(1); }
   50%      { filter: brightness(1.25); }
+}
+
+@keyframes neonLapClean {
+  0% {
+    left: 20px;
+    top: 3px;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) scaleX(0.65);
+    animation-timing-function: cubic-bezier(0.18, 0.76, 0.2, 1);
+  }
+  5% {
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(0deg) scaleX(1);
+  }
+  23% {
+    left: calc(100% - 20px);
+    top: 3px;
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(0deg) scaleX(1);
+    animation-timing-function: ease-out;
+  }
+  24.2% {
+    left: calc(100% - 9px);
+    top: 9px;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) scaleX(0.75);
+  }
+  24.8% {
+    left: calc(100% - 3px);
+    top: 20px;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(90deg) scaleX(0.75);
+    animation-timing-function: cubic-bezier(0.18, 0.76, 0.2, 1);
+  }
+  26% {
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(90deg) scaleX(1);
+  }
+  48% {
+    left: calc(100% - 3px);
+    top: calc(100% - 20px);
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(90deg) scaleX(1);
+    animation-timing-function: ease-out;
+  }
+  49.2% {
+    left: calc(100% - 9px);
+    top: calc(100% - 9px);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(90deg) scaleX(0.75);
+  }
+  49.8% {
+    left: calc(100% - 20px);
+    top: calc(100% - 3px);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(180deg) scaleX(0.75);
+    animation-timing-function: cubic-bezier(0.18, 0.76, 0.2, 1);
+  }
+  51% {
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(180deg) scaleX(1);
+  }
+  73% {
+    left: 20px;
+    top: calc(100% - 3px);
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(180deg) scaleX(1);
+    animation-timing-function: ease-out;
+  }
+  74.2% {
+    left: 9px;
+    top: calc(100% - 9px);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(180deg) scaleX(0.75);
+  }
+  74.8% {
+    left: 3px;
+    top: calc(100% - 20px);
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(270deg) scaleX(0.75);
+    animation-timing-function: cubic-bezier(0.18, 0.76, 0.2, 1);
+  }
+  76% {
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(270deg) scaleX(1);
+  }
+  95% {
+    left: 3px;
+    top: 20px;
+    opacity: 0.52;
+    transform: translate(-50%, -50%) rotate(270deg) scaleX(1);
+  }
+  96.2% {
+    left: 9px;
+    top: 9px;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(270deg) scaleX(0.75);
+  }
+  100% {
+    left: 20px;
+    top: 3px;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(360deg) scaleX(0.65);
+  }
 }
 
 .corner {
