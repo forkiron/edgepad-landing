@@ -241,7 +241,7 @@ export default function Home() {
 
           <div className="download-menu" role="menu">
             <a
-              href="https://github.com/thomaslenh/EdgePad/releases/latest/download/EdgePad-0.1.0.zip"
+              href="https://github.com/forkiron/EdgePad/releases/latest/download/EdgePad-0.1.0.zip"
               role="menuitem"
             >
               <span className="os-icon">
