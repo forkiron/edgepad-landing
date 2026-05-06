@@ -264,36 +264,24 @@ export default function Home() {
             <button
               type="button"
               role="menuitem"
-              className={`menu-item install-curl${copied ? " copied" : ""}`}
+              className={`menu-item${copied ? " copied" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 copyInstall();
               }}
             >
               <span className="os-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                </svg>
-              </span>
-              <span className="install-text">
-                <span className="install-label">macOS — copy install command</span>
-                <code className="install-cmd">{installCmd}</code>
-              </span>
-              <span className="copy-ind" aria-hidden="true">
                 {copied ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12.5l4.5 4.5L19 7.5" />
                   </svg>
                 ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="9" y="9" width="11" height="11" rx="2" />
-                    <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                   </svg>
                 )}
               </span>
-              <span className={`copied-toast${copied ? " show" : ""}`} aria-live="polite">
-                Copied
-              </span>
+              {copied ? "Copied" : "macOS"}
             </button>
 
             <a href="/download/windows" role="menuitem" download>
@@ -302,7 +290,7 @@ export default function Home() {
                   <path d="M3 5.5L10.5 4.5v7H3V5.5zm0 13l7.5 1v-7H3v6zM11.5 4.4L21 3v8.5h-9.5V4.4zm0 15.2l9.5 1.4v-8.5h-9.5v7.1z" />
                 </svg>
               </span>
-              Download for Windows
+              Windows
             </a>
           </div>
         </div>
