@@ -252,7 +252,7 @@ export default function Home() {
               Download for macOS
             </a>
 
-            <a href="#" role="menuitem">
+            <a href="/download/windows" role="menuitem" download>
               <span className="os-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M3 5.5L10.5 4.5v7H3V5.5zm0 13l7.5 1v-7H3v6zM11.5 4.4L21 3v8.5h-9.5V4.4zm0 15.2l9.5 1.4v-8.5h-9.5v7.1z" />
