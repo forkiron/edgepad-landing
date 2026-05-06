@@ -281,7 +281,7 @@ export default function Home() {
                   </svg>
                 )}
               </span>
-              {copied ? "Copied" : "macOS"}
+              {copied ? "Paste in terminal" : "macOS"}
             </button>
 
             <a href="/download/windows" role="menuitem" download>
